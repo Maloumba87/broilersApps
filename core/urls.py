@@ -17,9 +17,11 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),
     
+    """
     # --- TEMPORAIRE : URL pour créer l'admin ---
     path('create-admin-temp/', views.create_admin_temp, name='create_admin_temp'),
     # --- FIN TEMPORAIRE ---
+    """
 ]
 
 # Servir les fichiers médias en développement (NE PAS UTIISER EN PRODUCTION)
