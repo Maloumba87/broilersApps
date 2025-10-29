@@ -1,0 +1,66 @@
+<!-- templates/cart.html -->
+{% extends 'base.html' %}
+
+{% block title %}Panier - Mon E-commerce{% endblock %}
+
+{% block content %}
+<h2>Votre Panier</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+{% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-product-image">
+                    {% endif %}
+                    {{ item.product.name }}
+                </td>
+                <td>{{ item.product.price }} €</td>
+                <td>
+                    <form method="post" action="{% url 'update_cart' item.product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" style="width:60px;">
+                        <button type="submit" name="action" value="update" class="btn-link">✓</button>
+                    </form>
+                </td>
+                <td>{{ item.item_total }} €</td>
+                <td>
+                    <form method="post" action="{% url 'update_cart' item.product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="remove" class="btn-link" style="color:red;">🗑️ Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="cart-total">
+        <h3>Total : <strong>{{ total }} €</strong></h3>
+        <a href="/" class="btn">Continuer vos achats</a>
+        <!-- Plus tard : lien vers la page de paiement -->
+        <button disabled class="btn btn-primary" style="margin-left:1rem;">Passer au paiement</button>
+    </div>
+
+{% else %}
+    <p>Votre panier est vide.</p>
+    <a href="/" class="btn">Voir les produits</a>
+{% endif %}
+{% endblock %}

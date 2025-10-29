@@ -1,0 +1,32 @@
+<!-- templates/home.html -->
+{% extends 'base.html' %}
+
+{% block title %}Boutique - Mon E-commerce{% endblock %}
+
+{% block content %}
+<h2>Notre Boutique</h2>
+
+{% if products %}
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <div class="product-image-placeholder">Pas d'image</div>
+                {% endif %}
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description|truncatewords:20 }}</p>
+                <p class="price">{{ product.price }} €</p>
+                <!-- On ajoutera le bouton "Ajouter au panier" plus tard -->
+				<form method="post" action="{% url 'add_to_cart' product.id %}" style="margin-top:1rem;">
+					{% csrf_token %}
+					<button type="submit" class="btn">Ajouter au panier</button>
+				</form>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Aucun produit disponible pour le moment.</p>
+{% endif %}
+{% endblock %}
