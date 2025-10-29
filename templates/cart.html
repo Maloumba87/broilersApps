@@ -56,7 +56,37 @@
         <h3>Total : <strong>{{ total }} €</strong></h3>
         <a href="/" class="btn">Continuer vos achats</a>
         <!-- Plus tard : lien vers la page de paiement -->
-        <button disabled class="btn btn-primary" style="margin-left:1rem;">Passer au paiement</button>
+        <!-- Stripe Checkout -->
+		<script src="https://js.stripe.com/v3/"></script>
+		<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const stripe = Stripe('{{ stripe_publishable_key }}');
+    
+			document.getElementById('checkout-button').addEventListener('click', function () {
+				fetch('/payment/create-checkout-session/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': '{{ csrf_token }}'
+					},
+				})
+				.then(function(response) {
+					return response.json();
+				})
+				.then(function(session) {
+					return stripe.redirectToCheckout({ sessionId: session.id });
+				})
+				.catch(function(error) {
+					console.error('Erreur:', error);
+					alert('Une erreur est survenue lors du paiement.');
+				});
+			});
+		});
+		</script>
+
+		<button id="checkout-button" class="btn btn-success" style="margin-left:1rem;">
+			💳 Payer maintenant
+		</button>
     </div>
 
 {% else %}

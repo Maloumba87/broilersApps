@@ -1,4 +1,7 @@
 # shop/views.py
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
@@ -40,7 +43,6 @@ def add_to_cart(request, product_id):
 
 
 def view_cart(request):
-    """Affiche le contenu du panier"""
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
@@ -59,8 +61,8 @@ def view_cart(request):
     return render(request, 'cart.html', {
         'cart_items': cart_items,
         'total': total,
+        'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY,  # ← ajouté
     })
-
 
 def update_cart(request, product_id):
     """Met à jour ou supprime un article du panier (via POST)"""
@@ -101,4 +103,63 @@ def create_admin(request):
         return HttpResponse("Admin existe déjà.")
     User.objects.create_superuser('admin', 'admin@example.com', 'motdepasse123')
     return HttpResponse("Superutilisateur créé !")
+
+# shop/views.py (ajoute en bas)
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def create_checkout_session(request):
+    cart = request.session.get('cart', {})
+    if not cart:
+        return redirect('view_cart')
+
+    # Récupère les articles du panier
+    line_items = []
+    for product_id_str, item_data in cart.items():
+        product = get_object_or_404(Product, id=int(product_id_str))
+        line_items.append({
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {
+                    'name': product.name,
+                },
+                'unit_amount': int(product.price * 100),  # en centimes
+            },
+            'quantity': item_data['quantity'],
+        })
+
+    # Crée la commande (non payée)
+    order = Order.objects.create(
+        first_name='Temp',
+        last_name='Temp',
+        email='temp@example.com',
+        address='Temp',
+        postal_code='00000',
+        city='Temp',
+    )
+    for product_id_str, item_data in cart.items():
+        product = get_object_or_404(Product, id=int(product_id_str))
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            price=product.price,
+            quantity=item_data['quantity'],
+        )
+
+    # Crée la session Stripe
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=request.build_absolute_uri('/') + 'payment/success/',
+        cancel_url=request.build_absolute_uri('/') + 'payment/cancel/',
+        metadata={'order_id': order.id},
+    )
+
+    return JsonResponse({'id': session.id})
     
+def payment_success(request):
+    return render(request, 'payment_success.html')
+
+def payment_cancel(request):
+    return render(request, 'payment_cancel.html')    
