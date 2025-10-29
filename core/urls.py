@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', views.SignUpView.as_view(), name='register'),
+    path('create-admin/', views.create_admin),
     
     # Panier
     path('cart/', views.view_cart, name='view_cart'),

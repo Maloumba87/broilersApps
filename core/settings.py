@@ -3,10 +3,11 @@
 from pathlib import Path
 import os
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')      #'wl4-k7zzi_)^&xwgmju5sb52d16lw^hn^$!&0=#@i8o16y^sj#'
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
@@ -59,10 +60,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Base de données
-import dj_database_url
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL', default='sqlite:///db.sqlite3')
+        default='sqlite:///dbsqlite3'
+        #default=config('DATABASE_URL', default='sqlite:///db.sqlite3')
     )
 }
 

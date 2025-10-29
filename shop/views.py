@@ -5,6 +5,8 @@ from .models import Product
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .forms import CustomUserCreationForm
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 
 def home(request):
     products = Product.objects.all()
@@ -91,3 +93,10 @@ class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')  # Redirige vers la page de login après inscription
     template_name = 'registration/register.html'    
+
+
+def create_admin(request):
+    if User.objects.filter(username='admin').exists():
+        return HttpResponse("Admin existe déjà.")
+    User.objects.create_superuser('admin', 'admin@example.com', 'motdepasse123')
+    return HttpResponse("Superutilisateur créé !")    
