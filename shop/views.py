@@ -102,21 +102,3 @@ def create_admin(request):
     User.objects.create_superuser('admin', 'admin@example.com', 'motdepasse123')
     return HttpResponse("Superutilisateur créé !")
     
-# --- TEMPORAIRE : Création d'un superutilisateur via URL ---
-def create_admin_temp(request):
-    # Option de sécurité : ne fonctionne que si DEBUG=False (production)
-    # et seulement si tu connais le mot de passe secret
-    secret = request.GET.get('secret')
-    if secret != 'admin':  # ← CHANGE CE MOT DE PASSE !
-        return HttpResponse("Accès refusé.", status=403)
-
-    if User.objects.filter(username='admin').exists():
-        return HttpResponse("✅ Superutilisateur 'admin' existe déjà.")
-    
-    User.objects.create_superuser(
-        username='admin',
-        email='etito21087@gmail.com',
-        password='admin'  # ← CHANGE CE MOT DE PASSE !
-    )
-    return HttpResponse("✅ Superutilisateur 'admin' créé avec succès !")
-# --- FIN TEMPORAIRE ---    
