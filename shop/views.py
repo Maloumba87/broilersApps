@@ -3,7 +3,6 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import Product
@@ -106,9 +105,9 @@ def create_admin(request):
 
 # shop/views.py (ajoute en bas)
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
 def create_checkout_session(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    
     cart = request.session.get('cart', {})
     if not cart:
         return redirect('view_cart')
