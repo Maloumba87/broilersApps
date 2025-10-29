@@ -106,6 +106,9 @@ def create_admin(request):
 # shop/views.py (ajoute en bas)
 
 def create_checkout_session(request):
+    if not getattr(settings, 'STRIPE_SECRET_KEY', None):
+        return HttpResponse("Stripe non configuré.", status=500)
+    
     stripe.api_key = settings.STRIPE_SECRET_KEY
     
     cart = request.session.get('cart', {})
